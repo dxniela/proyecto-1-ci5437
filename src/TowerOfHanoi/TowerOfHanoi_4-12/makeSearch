@@ -65,7 +65,7 @@ abstractor:
 	$(CXX) $(OPT) ../../global/A_STAR/a_star.cpp -include $< -include solver.cpp -o $@
 
 %.bfs: %.c ../../global/BFS/bfs.cpp stateComparer.hpp
-	$(CXX) $(OPT) -std=c++11 ../../global/BFS/bfs.cpp -include $< -o $@
+	$(CXX) $(OPT) -std=c++20 ../../global/BFS/bfs.cpp -include $< -o $@
 
 .PHONY: clean
 clean:

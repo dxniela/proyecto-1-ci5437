@@ -11,7 +11,7 @@
 #define MAX_RUN_TIME 600000
 
 using namespace std::chrono;
-using namespace std
+using namespace std;
 
 int64_t nodes_expanded;
 
@@ -118,6 +118,8 @@ void process_test_file(string filename)
 	ssize_t nchars;
 	state_t start;
 	ifstream file;
+	clock_t startTime, endTime, timeSpan;
+	float runTime;
 
 	cargarPDBS();
 
@@ -132,7 +134,7 @@ void process_test_file(string filename)
 	cout << "Instancia \t\t\t Resuelto   Tiempo \t   Nodos Expandidos   Distancia\t" << endl;
 	cout << "-----------------------------------------------------------------------------" << endl;
 
-	while (getline(file, line);)
+	while (getline(file, line))
 	{
 		
 		nchars = read_state(line.c_str(), &start);
@@ -142,19 +144,26 @@ void process_test_file(string filename)
 			continue;
 		}
 
+		startTime = clock();
 		nodes_expanded = 0;
 
 		// INICIO DE A*
 		d = aStar(&start);
 		// FIN DE A*
 
+		endTime = clock();
+
+		timeSpan = endTime - startTime;
+
+		runTime = timeSpan / (double)CLOCKS_PER_SEC;
+
 		if (d < 0)
 		{
-			cout << line << "\t Falso \t " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms \t " << nodes_expanded << "\t\t " << d << endl;
+			cout << line << "\t Falso \t " << runTime << " ms \t " << nodes_expanded << "\t\t " << d << endl;
 		}
 		else
 		{
-			cout << line << "\t Verdadero \t " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms \t " << nodes_expanded << "\t\t " << d << endl;
+			cout << line << "\t Verdadero \t " << runTime << " ms \t " << nodes_expanded << "\t\t " << d << endl;
 		}
 	}
 

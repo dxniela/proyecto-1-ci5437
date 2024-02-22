@@ -117,9 +117,9 @@ void process_test_file(string filename)
 		startTime = clock();
 		nodes_expanded = 0;
 
-		// A STAR BEGINS
+		// IDA BEGINS
 		Node goal = idaStar(&start);
-		// A STAR ENDS
+		// IDA ENDS
 
 		endTime = clock();
 

@@ -9,6 +9,7 @@
 #define MAX_RUN_TIME 600000
 
 using namespace std::chrono;
+using namespace std;
 
 enum COLOR
 {
@@ -17,7 +18,7 @@ enum COLOR
 	BLACK
 };
 
-std::vector<int64_t> levelNodes{};
+vector<int64_t> levelNodes{};
 int currentLevelNodes;
 int nextLevelNodes;
 
@@ -29,10 +30,10 @@ int64_t checkMaxRuntime(system_clock::time_point &startTime)
 }
 
 // Función para realizar la búsqueda en anchura
-std::optional<state_t> bfs(state_t root)
+optional<state_t> bfs(state_t root)
 {
 	system_clock::time_point startTime = high_resolution_clock::now();
-	std::queue<state_t> nodeQueue;
+	queue<state_t> nodeQueue;
 	ruleid_iterator_t iter;
 
 	// Se agrega el nodo raíz a la cola
@@ -59,21 +60,21 @@ std::optional<state_t> bfs(state_t root)
 			nextLevelNodes = 0;
 
 			// Se imprime la profundidad y el número de nodos
-			std::cout << "Profundidad: " << levelNodes.size() << std::endl;
-			std::cout << "Tiene " << currentLevelNodes << " nodo(s)." << std::endl;
+			cout << "Profundidad: " << levelNodes.size() << endl;
+			cout << "Tiene " << currentLevelNodes << " nodo(s)." << endl;
 		}
 
 		// Si el nodo actual es un objetivo
 		if (is_goal(&currentNode))
 		{
 			// Se imprime la profundidad, el número de nodos y el tiempo de ejecución
-			std::cout << "Profundidad: " << levelNodes.size() << std::endl;
-			std::cout << "Tiene " << levelNodes.back() << " nodo(s)." << std::endl;
-			std::cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-			std::cout << "ms" << std::endl
-								<< std::endl;
+			cout << "Profundidad: " << levelNodes.size() << endl;
+			cout << "Tiene " << levelNodes.back() << " nodo(s)." << endl;
+			cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
+			cout << "ms" << endl
+								<< endl;
 
-			return std::optional<state_t>(currentNode);
+			return optional<state_t>(currentNode);
 		}
 
 		// Si se ha excedido el tiempo máximo de ejecución
@@ -81,7 +82,7 @@ std::optional<state_t> bfs(state_t root)
 		if ((elapsedTime = checkMaxRuntime(startTime)) != -1)
 		{
 			// Se imprime el tiempo de ejecución y se sale del bucle
-			std::cout << "Tiempo de corrida " << elapsedTime << "ms" << std::endl;
+			cout << "Tiempo de corrida " << elapsedTime << "ms" << endl;
 			break;
 		}
 
@@ -101,19 +102,19 @@ std::optional<state_t> bfs(state_t root)
 	}
 
 	// Si no se encontró un objetivo
-	std::cout << "No hay objetivo" << std::endl;
-	std::cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-	std::cout << "ms" << std::endl
-						<< std::endl;
-	return std::nullopt;
+	cout << "No hay objetivo" << endl;
+	cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
+	cout << "ms" << endl
+						<< endl;
+	return nullopt;
 }
 
 // Función para realizar la búsqueda en anchura con poda
-std::optional<state_t> bfsPrunning(state_t root)
+optional<state_t> bfsPrunning(state_t root)
 {
 	system_clock::time_point startTime = high_resolution_clock::now();
-	std::queue<state_t> nodeQueue;
-	std::unordered_map<state_t, COLOR> nodeColors;
+	queue<state_t> nodeQueue;
+	unordered_map<state_t, COLOR> nodeColors;
 	ruleid_iterator_t iter;
 
 	// Se marca el nodo raíz como blanco y se agrega a la cola
@@ -122,8 +123,8 @@ std::optional<state_t> bfsPrunning(state_t root)
 
 	// Se limpiam los nodos de nivel
 	levelNodes.clear();
-	curLevelNodes = 1;
-	nexLevelNodes = 1;
+	currentLevelNodes = 1;
+	nextLevelNodes = 1;
 
 	// Mientras la cola no esté vacía
 	while (!nodeQueue.empty())
@@ -134,29 +135,29 @@ std::optional<state_t> bfsPrunning(state_t root)
 		init_fwd_iter(&iter, &currentNode);
 
 		// Si se han visitado todos los nodos del nivel actual
-		if (curLevelNodes == 0)
+		if (currentLevelNodes == 0)
 		{
 			// Se actualizan los nodos de nivel
-			levelNodes.push_back(nexLevelNodes);
-			curLevelNodes = nexLevelNodes;
-			nexLevelNodes = 0;
+			levelNodes.push_back(nextLevelNodes);
+			currentLevelNodes = nextLevelNodes;
+			nextLevelNodes = 0;
 
 			// Se imprime la profundidad y el número de nodos
-			std::cout << "Profundidad: " << levelNodes.size() << std::endl;
-			std::cout << "Tiene " << curLevelNodes << " nodo(s)." << std::endl;
+			cout << "Profundidad: " << levelNodes.size() << endl;
+			cout << "Tiene " << currentLevelNodes << " nodo(s)." << endl;
 		}
 
 		// Si el nodo actual es un objetivo
 		if (is_goal(&currentNode))
 		{
 			// Se imprime la profundidad, el número de nodos y el tiempo de ejecución
-			std::cout << "Profundidad: " << levelNodes.size() << std::endl;
-			std::cout << "Tiene " << levelNodes.back() << " nodo(s)." << std::endl;
-			std::cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-			std::cout << "ms" << std::endl
-								<< std::endl;
+			cout << "Profundidad: " << levelNodes.size() << endl;
+			cout << "Tiene " << levelNodes.back() << " nodo(s)." << endl;
+			cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
+			cout << "ms" << endl
+								<< endl;
 			// Se devuelve el nodo objetivo
-			return std::optional<state_t>(currentNode);
+			return optional<state_t>(currentNode);
 		}
 
 		// Si se ha excedido el tiempo máximo de ejecución
@@ -164,7 +165,7 @@ std::optional<state_t> bfsPrunning(state_t root)
 		if ((elapsedTime = checkMaxRuntime(startTime)) != -1)
 		{
 			// Se imprime el tiempo de ejecución y se sale del bucle
-			std::cout << "Tiempo de corrida " << elapsedTime << "ms" << std::endl;
+			cout << "Tiempo de corrida " << elapsedTime << "ms" << endl;
 			break;
 		}
 
@@ -185,7 +186,7 @@ std::optional<state_t> bfsPrunning(state_t root)
 					// Marcamos el nuevo nodo como gris y lo agregamos a la cola
 					nodeColors[newNode] = COLOR::GRAY;
 					nodeQueue.emplace(newNode);
-					nexLevelNodes += 1;
+					nextLevelNodes += 1;
 				}
 			}
 			// Si el nuevo nodo no ha sido descubierto
@@ -194,21 +195,52 @@ std::optional<state_t> bfsPrunning(state_t root)
 				// Marcamos el nuevo nodo como gris y lo agregamos a la cola
 				nodeColors[newNode] = COLOR::GRAY;
 				nodeQueue.emplace(newNode);
-				nexLevelNodes += 1;
+				nextLevelNodes += 1;
 			}
 		}
 
 		// Se decrementa el número de nodos del nivel actual
-		curLevelNodes--;
+		currentLevelNodes--;
 
 		// Se marca el nodo actual como negro
 		nodeColors[currentNode] = COLOR::BLACK;
 	}
 
 	// Si no se encontró un objetivo
-	std::cout << "No hay objetivo" << std::endl;
-	std::cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-	std::cout << "ms" << std::endl
-						<< std::endl;
+	cout << "No hay objetivo" << endl;
+	cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
+	cout << "ms" << endl
+						<< endl;
 	return {};
+}
+
+// Función principal
+int main(int argc, char **argv)
+{
+    state_t goal;
+    int finished, goal_id, pruning;
+
+    if (argc != 2) {
+        printf("Please enter 1 for parcial pruning or 0 for no pruning.\n\n");
+        return -1;
+    }
+
+    pruning = atoi(argv[1]);
+
+    if (pruning != 0 && pruning != 1) {
+        printf("Please enter 1 for parcial pruning or 0 for no pruning.\n\n");
+        return -1;
+    }
+
+    printf("Depth\t#Nodes\tBranching Factor\n");
+    printf("------------------------------------------------------------------\n");
+
+    first_goal_state(&goal, &goal_id);
+;
+    if (pruning) 
+		bfsPrunning(goal);
+	else 
+		bfs(goal);
+
+    return 0;
 }
