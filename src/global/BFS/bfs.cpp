@@ -3,7 +3,7 @@
 #include <vector>
 #include <chrono>
 #include <unordered_map>
-#include "bfs.hpp"
+#include "./bfs.hpp"
 #include "../stateComparer.hpp"
 
 #define MAX_RUN_TIME 600000

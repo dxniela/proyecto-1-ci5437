@@ -1,0 +1,69 @@
+# to make a PDB starting from foo.psvn  type the command:     make pdb ss=foo
+# if $(absname).txt exists it will be used as the input (abstraction commands) to build the abstraction,
+#   otherwise the user will enter the abstraction commands interactively.
+
+CC = gcc
+CXX = g++
+OPT = -Wall -O3 -Wno-unused-function -Wno-unused-variable
+PSVNOPT = --state_map --backward_moves --fwd_history_len=3 --bwd_history_len=0
+BASE_FOLDER = ../../psvn-for-ci5437
+
+psvn2c_core.c:
+	cp ${BASE_FOLDER}/src/psvn2c_core.c ./psvn2c_core.c
+
+psvn2c_state_map.c:
+	cp ${BASE_FOLDER}/src/psvn2c_state_map.c ./psvn2c_state_map.c
+
+psvn2c_abstraction.c:
+	cp ${BASE_FOLDER}/src/psvn2c_abstraction.c ./psvn2c_abstraction.c
+
+%.c: %.psvn psvn2c_core.c psvn2c_state_map.c psvn2c_abstraction.c
+	${BASE_FOLDER}/bin/psvn2c $(PSVNOPT) --name=$(*F) < $< > $@
+	rm -f ./psvn2c_core.c ./psvn2c_state_map.c ./psvn2c_abstraction.c
+
+.PRECIOUS: %.c
+
+node.hpp:
+	cp ../../../global/node.hpp ./node.hpp
+
+stateComparer.hpp:
+	cp ../../../global/stateComparer.hpp ./stateComparer.hpp
+
+%.succ: %.c ${BASE_FOLDER}/global/succ.c
+	$(CC) $(OPT) ${BASE_FOLDER}/global/succ.c -include $< -o $@
+	rm -f $*.c
+
+%.dist: %.c ${BASE_FOLDER}/global/dist.cpp
+	$(CXX) $(OPT) ${BASE_FOLDER}/global/dist.cpp -include $< -o $@
+	rm -f $*.c
+
+%.distSummary: %.c ${BASE_FOLDER}/global/distSummary.cpp
+	$(CXX) $(OPT) ${BASE_FOLDER}/global/distSummary.cpp -include $< -o $@
+	rm -f $*.c
+
+abstractor:
+	$(CXX) $(OPT) ${BASE_FOLDER}/src/abstractor.cpp ${BASE_FOLDER}/src/psvn.cpp -o $@
+
+%.pdb: abstractor
+	@rm -f `dirname $*`_`basename $*`.{abst,pdb,psvn}
+	./abstractor `dirname $*`.psvn `dirname $*`_`basename $*` < `basename $*`.txt
+	make -f makePDB.mk `dirname $*`_`basename $*`.distSummary
+	echo Calculating `dirname $*`_`basename $*.pdb` ...
+	@./`dirname $*`_`basename $*`.distSummary `dirname $*`_`basename $*`.pdb
+
+%.dist_pdb: %.c ${BASE_FOLDER}/global/dist_pdb.cpp
+	$(CXX) $(OPT) ${BASE_FOLDER}/global/dist_pdb.cpp -include $< -o $@
+	rm -f $*.c
+
+%.idaStar: %.c ../../../global/IDA/ida.cpp node.hpp
+	$(CXX) $(OPT) ../../../global/IDA/ida.cpp -include $< -include solver.cpp -o $@
+
+%.aStar: %.c ../../../global/A_STAR/a_star.cpp
+	$(CXX) $(OPT) ../../../global/A_STAR/a_star.cpp -include $< -include solver.cpp -o $@
+
+%.bfs: %.c ../../../global/BFS/bfs.cpp stateComparer.hpp
+	$(CXX) $(OPT) -std=c++11 ../../../global/BFS/bfs.cpp -include $< -o $@
+
+.PHONY: clean
+clean:
+	rm -fr *.succ *.dist *.distSummary *.dist_pdb psvn2c_core.c psvn2c_state_map.c psvn2c_abstraction.c abstractor *.dSYM *.o *~
