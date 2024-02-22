@@ -16,17 +16,17 @@ using namespace std;
 
 void cargarPDB(){
 
-	FILE *f1 = fopen("rubik3Sticker_abst_corner.pdb", "r");
-	FILE *f2 = fopen("rubik3Sticker_abst_edge_1.pdb", "r");
-	FILE *f3 = fopen("rubik3Sticker_abst_edge_2.pdb", "r");
+	FILE *f1 = fopen("Rubik3Sticker_abst_corner.pdb", "r");
+	FILE *f2 = fopen("Rubik3Sticker_abst_edge_1.pdb", "r");
+	FILE *f3 = fopen("Rubik3Sticker_abst_edge_2.pdb", "r");
  
-	abs1 = read_abstraction_from_file("rubik3Sticker_abst_corner.abst");
+	abs1 = read_abstraction_from_file("Rubik3Sticker_abst_corner.abst");
 	map1 = read_state_map(f1);
 
-	abs2 = read_abstraction_from_file("rubik3Sticker_abst_edge_1.abst");
+	abs2 = read_abstraction_from_file("Rubik3Sticker_abst_edge_1.abst");
 	map2 = read_state_map(f2);
 
-	abs3 = read_abstraction_from_file("rubik3Sticker_abst_edge_2.abst");
+	abs3 = read_abstraction_from_file("Rubik3Sticker_abst_edge_2.abst");
 	map3 = read_state_map(f3);
 
 	fclose(f1);

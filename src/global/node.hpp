@@ -3,7 +3,7 @@
 
 class Node
 {
-private:
+public:
 	state_t state;
 	Node *parent;
 	unsigned g;

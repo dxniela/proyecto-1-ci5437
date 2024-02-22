@@ -14,17 +14,17 @@ state_t abs_state3;
 
 void cargarPDBS(){
     
-	FILE *f1 = fopen("15-puzzle_abst1.pdb", "r");
-	FILE *f2 = fopen("15-puzzle_abst2.pdb", "r");
-	FILE *f3 = fopen("15-puzzle_abst3.pdb", "r");
+	FILE *f1 = fopen("15-Puzzle_abst1.pdb", "r");
+	FILE *f2 = fopen("15-Puzzle_abst2.pdb", "r");
+	FILE *f3 = fopen("15-Puzzle_abst3.pdb", "r");
 
-	abs1 = read_abstraction_from_file("15-puzzle_abst1.abst");
+	abs1 = read_abstraction_from_file("15-Puzzle_abst1.abst");
 	map1 = read_state_map(f1);
 
-	abs2 = read_abstraction_from_file("15-puzzle_abst2.abst");
+	abs2 = read_abstraction_from_file("15-Puzzle_abst2.abst");
 	map2 = read_state_map(f2);
 
-	abs3 = read_abstraction_from_file("15-puzzle_abst3.abst");
+	abs3 = read_abstraction_from_file("15-Puzzle_abst3.abst");
 	map3 = read_state_map(f3);
 
 	fclose(f1);

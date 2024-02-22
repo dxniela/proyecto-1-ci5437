@@ -26,6 +26,9 @@ psvn2c_abstraction.c:
 node.hpp:
 	cp ../../../global/node.hpp ./node.hpp
 
+priority_queue:
+	cp ${BASE_FOLDER}/global/priority_queue.hpp ./priority_queue.hpp
+
 stateComparer.hpp:
 	cp ../../../global/stateComparer.hpp ./stateComparer.hpp
 
@@ -55,7 +58,7 @@ abstractor:
 	$(CXX) $(OPT) ${BASE_FOLDER}/global/dist_pdb.cpp -include $< -o $@
 	rm -f $*.c
 
-%.idaStar: %.c ../../../global/IDA/ida.cpp node.hpp
+%.idaStar: %.c ../../../global/IDA/ida.cpp priority_queue.hpp node.hpp
 	$(CXX) $(OPT) ../../../global/IDA/ida.cpp -include $< -include solver.cpp -o $@
 
 %.aStar: %.c ../../../global/A_STAR/a_star.cpp

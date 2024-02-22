@@ -16,13 +16,13 @@ using namespace std;
 
 void cargarPDB(){
 
-	FILE *f1 = fopen("towers-of-hanoi_abst1.pdb", "r");
-	FILE *f2 = fopen("towers-of-hanoi_abst2.pdb", "r");
+	FILE *f1 = fopen("TowerOfHanoi_4-14_abst1.pdb", "r");
+	FILE *f2 = fopen("TowerOfHanoi_4-14_abst2.pdb", "r");
  
-	abs1 = read_abstraction_from_file("towers-of-hanoi_abst1.abst");
+	abs1 = read_abstraction_from_file("TowerOfHanoi_4-14_abst1.abst");
 	map1 = read_state_map(f1);
 
-	abs2 = read_abstraction_from_file("towers-of-hanoi_abst2.abst");
+	abs2 = read_abstraction_from_file("TowerOfHanoi_4-14_abst2.abst");
 	map2 = read_state_map(f2);
 
 	fclose(f1);

@@ -5,7 +5,7 @@
 CC = gcc
 CXX = g++
 OPT = -Wall -O3 -Wno-unused-function -Wno-unused-variable
-PSVNOPT = --state_map --backward_moves --fwd_history_len=0 --bwd_history_len=0
+PSVNOPT = --state_map --backward_moves --fwd_history_len=3 --bwd_history_len=0
 BASE_FOLDER = ../../psvn-for-ci5437
 
 psvn2c_core.c:
@@ -23,10 +23,14 @@ psvn2c_abstraction.c:
 
 .PRECIOUS: %.c
 
-
 node.hpp:
-	cp ../../../global/node.hpp ./node.hpp
+	cp ../global/node.hpp ./node.hpp
 
+priority_queue.hpp:
+	cp ${BASE_FOLDER}/global/priority_queue.hpp ./priority_queue.hpp
+
+stateComparer.hpp:
+	cp ../global/stateComparer.hpp ./stateComparer.hpp
 
 %.succ: %.c ${BASE_FOLDER}/global/succ.c
 	$(CC) $(OPT) ${BASE_FOLDER}/global/succ.c -include $< -o $@
@@ -37,7 +41,7 @@ node.hpp:
 	rm -f $*.c
 
 %.distSummary: %.c ${BASE_FOLDER}/global/distSummary.cpp
-	$(CXX) $(OPT) .${BASE_FOLDER}global/distSummary.cpp -include $< -o $@
+	$(CXX) $(OPT) ${BASE_FOLDER}/global/distSummary.cpp -include $< -o $@
 	rm -f $*.c
 
 abstractor:
@@ -54,11 +58,14 @@ abstractor:
 	$(CXX) $(OPT) ${BASE_FOLDER}/global/dist_pdb.cpp -include $< -o $@
 	rm -f $*.c
 
-%.idaStar: %.c ../../../global/IDA/ida.cpp node.hpp
-	$(CXX) $(OPT) ../../../global/IDA/ida.cpp -include $< -include solver.cpp -o $@
+%.idaStar: %.c ../global/IDA/ida.cpp priority_queue.hpp node.hpp
+	$(CXX) $(OPT) ../global/IDA/ida.cpp -include $< -include solver.cpp -o $@
 
-%.aStar: %.c ../../../global/A_STAR/a_star.cpp
-	$(CXX) $(OPT) ../../../global/A_STAR/a_star.cpp -include $< -include solver.cpp -o $@
+%.aStar: %.c ..//global/A_STAR/a_star.cpp priority_queue.hpp
+	$(CXX) $(OPT) ../global/A_STAR/a_star.cpp -include $< -include solver.cpp -o $@
+
+%.bfs: %.c ../global/BFS/bfs.cpp stateComparer.hpp
+	$(CXX) $(OPT) -std=c++11 ../global/BFS/bfs.cpp -include $< -o $@
 
 .PHONY: clean
 clean:

@@ -1,5 +1,5 @@
 #include <vector>
-#include "../../psvn-for-ci5437/global/priority_queue.hpp"
+#include "../priority_queue.hpp"
 #include <stdbool.h>
 #include <fstream>
 #include <string>
@@ -41,7 +41,7 @@ void expand_state(state_t *state, PriorityQueue<state_t> &q, state_map_t *distan
 		apply_fwd_rule(ruleid, state, &child);
 
 		int child_g = g + get_fwd_rule_cost(ruleid);
-		int child_h = heuristic(child);
+		int child_h = heuristicas(child);
 		int child_f = child_g + child_h;
 
 		if (child_h < INT_MAX)
@@ -59,8 +59,7 @@ int aStar(state_t *start)
 	state_map_t *distance = new_state_map();
 	if (distance == NULL)
 	{ // Verifica si la memoria fue asignada correctamente
-		std::cout << "Error: No se pudo asignar memoria para el mapa de estado.\n"
-							<< std::endl;
+		cout << "Error: No se pudo asignar memoria para el mapa de estado.\n" << endl;
 		return -1;
 	}
 
@@ -78,8 +77,7 @@ int aStar(state_t *start)
 		int64_t runTime = checkMaxRuntime(startTime);
 		if (runTime != -1)
 		{
-			std::cout << "Tiempo de corrida excedido: " << runTime << " ms\n"
-								<< std::endl;
+			cout << "Tiempo de corrida excedido: " << runTime << " ms\n" << endl;
 			break;
 		}
 
@@ -99,10 +97,9 @@ int aStar(state_t *start)
 
 			if (is_goal_reached(&state))
 			{
-				std::cout << "A* ha expandido: " << nodes_expanded << " nodos." << std::endl;
-				std::cout << "Movimientos mínimos realizados: " << g << std::endl;
-				std::cout << "Tiempo de corrida: " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms\n\n"
-									<< std::endl;
+				cout << "A* ha expandido: " << nodes_expanded << " nodos." << endl;
+				cout << "Movimientos mínimos realizados: " << g << endl;
+				cout << "Tiempo de corrida: " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms\n\n" << endl;
 				return g;
 			}
 
@@ -122,18 +119,18 @@ void process_test_file(string filename)
 	state_t start;
 	ifstream file;
 
-	loadPDB();
+	cargarPDBS();
 
 	file.open(filename);
 
 	if (!file.is_open())
 	{
-		std::cout << "Error: Nombre de archivo inválido: " << filename << std::endl;
+		cout << "Error: Nombre de archivo inválido: " << filename << endl;
 		return;
 	}
 
-	std::cout << "Instancia \t\t\t Resuelto   Tiempo \t   Nodos Expandidos   Distancia\t" << std::endl;
-	std::cout << "-----------------------------------------------------------------------------" << std::endl;
+	cout << "Instancia \t\t\t Resuelto   Tiempo \t   Nodos Expandidos   Distancia\t" << endl;
+	cout << "-----------------------------------------------------------------------------" << endl;
 
 	while (getline(file, line);)
 	{
@@ -141,7 +138,7 @@ void process_test_file(string filename)
 		nchars = read_state(line.c_str(), &start);
 		if (nchars <= 0)
 		{
-			std::cout << "Error: estado inválido ingresado." << std::endl;
+			cout << "Error: estado inválido ingresado." << endl;
 			continue;
 		}
 
@@ -153,11 +150,11 @@ void process_test_file(string filename)
 
 		if (d < 0)
 		{
-			std::cout << line << "\t Falso \t " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms \t " << nodes_expanded << "\t\t " << d << std::endl;
+			cout << line << "\t Falso \t " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms \t " << nodes_expanded << "\t\t " << d << endl;
 		}
 		else
 		{
-			std::cout << line << "\t Verdadero \t " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms \t " << nodes_expanded << "\t\t " << d << std::endl;
+			cout << line << "\t Verdadero \t " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms \t " << nodes_expanded << "\t\t " << d << endl;
 		}
 	}
 
@@ -169,7 +166,7 @@ int main(int argc, char **argv)
 {
 	string filename;
 
-	std::cout << "Por favor, ingrese un archivo de prueba seguido de ENTER: ";
+	cout << "Por favor, ingrese un archivo de prueba seguido de ENTER: ";
 	getline(cin, filename);
 
 	process_test_file(filename);

@@ -1,5 +1,5 @@
 #include <vector>
-#include "../../psvn-for-ci5437/global/priority_queue.hpp"
+#include "../priority_queue.hpp"
 #include "../node.hpp"
 #include <stdbool.h>
 #include <algorithm>
@@ -16,7 +16,7 @@ int64_t nodes_expanded;
 // Realiza una búsqueda en profundidad limitada por un límite de costo
 Node *dfsVisit(Node *n, unsigned bound, unsigned *nextBound, const int history)
 {
-	unsigned f = (*n).g + heuristic((*n).state);
+	unsigned f = (*n).g + heuristicas((*n).state);
 	unsigned t = INT_MAX;
 	int ruleid;
 	int c_history;
@@ -56,7 +56,7 @@ Node *dfsVisit(Node *n, unsigned bound, unsigned *nextBound, const int history)
 			return next;
 		}
 
-		t = std::min(t, *nextBound);
+		t = min(t, *nextBound);
 	}
 
 	*nextBound = t;
@@ -67,7 +67,7 @@ Node *dfsVisit(Node *n, unsigned bound, unsigned *nextBound, const int history)
 Node idaStar(state_t *start)
 {
 	Node root(*start, NULL, 0);
-	unsigned bound = heuristic(*start);
+	unsigned bound = heuristicas(*start);
 	unsigned nextBound;
 	Node *final;
 
@@ -86,23 +86,23 @@ Node idaStar(state_t *start)
 // Función para procesar el archivo de prueba
 void process_test_file(string filename)
 {
-	std::string line;
+	string line;
 	ssize_t nchars;
 	float runTime;
 	state_t start;
-	std::ifstream file;
-	std::clock_t startTime, endTime, timeSpan;
+	ifstream file;
+	clock_t startTime, endTime, timeSpan;
 
 	file.open(filename);
 
 	if (!file.is_open())
 	{
-		std::cout << "Error: Invalid filename: " << filename << "\n";
+		cout << "Error: Invalid filename: " << filename << endl;
 		return;
 	}
 
-	std::cout << "Instance \t\t\t Solved   Time \t   Nodes Expanded   Distance\t\n";
-	std::cout << "-----------------------------------------------------------------------------\n";
+	cout << "Instance \t\t\t Solved   Time \t   Nodes Expanded   Distance\t\n";
+	cout << "-----------------------------------------------------------------------------\n";
 
 	while (getline(file, line))
 	{
@@ -110,7 +110,7 @@ void process_test_file(string filename)
 		nchars = read_state(line.c_str(), &start);
 		if (nchars <= 0)
 		{
-			std::cout << "Error: invalid state entered.\n";
+			cout << "Error: invalid state entered." << endl;
 			continue;
 		}
 
@@ -127,7 +127,7 @@ void process_test_file(string filename)
 
 		runTime = timeSpan / (double)CLOCKS_PER_SEC;
 
-		std::cout << line << "\t True \t" << runTime << "\t" << nodes_expanded << "\t\t" << goal.g << "\n";
+		cout << line << "\t True \t" << runTime << "\t" << nodes_expanded << "\t\t" << goal.g << endl;
 	}
 
 	file.close();
@@ -138,12 +138,12 @@ int main(int argc, char **argv)
 {
 	char str[MAX_LINE_LENGTH + 1];
 
-	loadPDB();
+	cargarPDBS();
 
-	std::cout << "Please enter a test file followed by ENTER: ";
+	cout << "Please enter a test file followed by ENTER: ";
 	if (!fgets(str, sizeof str, stdin))
 	{
-		std::cout << "Error: empty input line.\n";
+		cout << "Error: empty input line." << endl;
 		return 0;
 	}
 

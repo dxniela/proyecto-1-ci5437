@@ -16,17 +16,17 @@ using namespace std;
 
 void cargarPDB(){
 
-	FILE *f1 = fopen("top-spin-simple_abst1.pdb", "r");
-	FILE *f2 = fopen("top-spin-simple_abst2.pdb", "r");
-	FILE *f3 = fopen("top-spin-simple_abst3.pdb", "r");
+	FILE *f1 = fopen("TopSpin12-4_abst1.pdb", "r");
+	FILE *f2 = fopen("TopSpin12-4_abst2.pdb", "r");
+	FILE *f3 = fopen("TopSpin12-4_abst3.pdb", "r");
  
-	abs1 = read_abstraction_from_file("top-spin-simple_abst1.abst");
+	abs1 = read_abstraction_from_file("TopSpin12-4_abst1.abst");
 	map1 = read_state_map(f1);
 
-	abs2 = read_abstraction_from_file("top-spin-simple_abst2.abst");
+	abs2 = read_abstraction_from_file("TopSpin12-4_abst2.abst");
 	map2 = read_state_map(f2);
 
-	abs3 = read_abstraction_from_file("top-spin-simple_abst3.abst");
+	abs3 = read_abstraction_from_file("TopSpin12-4_abst3.abst");
 	map3 = read_state_map(f3);
 
 	fclose(f1);
