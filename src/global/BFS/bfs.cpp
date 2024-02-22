@@ -1,246 +1,125 @@
-#include <iostream>
-#include <queue>
 #include <vector>
-#include <chrono>
+#include "../priority_queue.hpp"
+#include <stdbool.h>
 #include <unordered_map>
-#include "./bfs.hpp"
-#include "../stateComparer.hpp"
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <sstream>
 
-#define MAX_RUN_TIME 600000
-
-using namespace std::chrono;
+#define MAX_LINE_LENGTH 999
 using namespace std;
 
-enum COLOR
+int bfs(state_t *goal, int pruning)
 {
-	WHITE,
-	GRAY,
-	BLACK
-};
-
-vector<int64_t> levelNodes{};
-int currentLevelNodes;
-int nextLevelNodes;
-
-// Función para verificar si se ha excedido el tiempo máximo de ejecución
-int64_t checkMaxRuntime(system_clock::time_point &startTime)
-{
-	int64_t currentTime = duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-	return currentTime > MAX_RUN_TIME ? currentTime : -1;
-}
-
-// Función para realizar la búsqueda en anchura
-optional<state_t> bfs(state_t root)
-{
-	system_clock::time_point startTime = high_resolution_clock::now();
-	queue<state_t> nodeQueue;
+	PriorityQueue<state_t> open;
+	state_map_t *historyMap = new_state_map();
+	state_t state, child;
+	int depth, ruleid, history, c_history;
+	float b_factor;
 	ruleid_iterator_t iter;
+	unordered_map<int, int> nodesPerDepth;
+	int *new_history;
+	history = init_history;
 
-	// Se agrega el nodo raíz a la cola
-	nodeQueue.emplace(root);
-
-	// Se limpian los nodos de nivel
-	levelNodes.clear();
-	currentLevelNodes = 1;
-	nextLevelNodes = 1;
-
-	while (!nodeQueue.empty())
+	/* add goal state */
+	open.Add(0, 0, *goal);
+	if (pruning)
 	{
-		// Obtenemos el siguiente nodo de la cola
-		state_t currentNode = nodeQueue.front();
-		nodeQueue.pop();
-		init_fwd_iter(&iter, &currentNode);
-
-		// Si se han visitado todos los nodos del nivel actual
-		if (currentLevelNodes == 0)
-		{
-			// Se actualizan los nodos de nivel
-			levelNodes.push_back(nextLevelNodes);
-			currentLevelNodes = nextLevelNodes;
-			nextLevelNodes = 0;
-
-			// Se imprime la profundidad y el número de nodos
-			cout << "Profundidad: " << levelNodes.size() << endl;
-			cout << "Tiene " << currentLevelNodes << " nodo(s)." << endl;
-		}
-
-		// Si el nodo actual es un objetivo
-		if (is_goal(&currentNode))
-		{
-			// Se imprime la profundidad, el número de nodos y el tiempo de ejecución
-			cout << "Profundidad: " << levelNodes.size() << endl;
-			cout << "Tiene " << levelNodes.back() << " nodo(s)." << endl;
-			cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-			cout << "ms" << endl
-								<< endl;
-
-			return optional<state_t>(currentNode);
-		}
-
-		// Si se ha excedido el tiempo máximo de ejecución
-		int64_t elapsedTime;
-		if ((elapsedTime = checkMaxRuntime(startTime)) != -1)
-		{
-			// Se imprime el tiempo de ejecución y se sale del bucle
-			cout << "Tiempo de corrida " << elapsedTime << "ms" << endl;
-			break;
-		}
-
-		// Para cada acción posible
-		int action;
-		while ((action = next_ruleid(&iter)) >= 0)
-		{
-			// Se aplica la acción al nodo actual para obtener un nuevo nodo
-			state_t newNode;
-			apply_fwd_rule(action, &currentNode, &newNode);
-
-			// Se agrega el nuevo nodo a la cola
-			nodeQueue.emplace(newNode);
-			nextLevelNodes += 1;
-		}
-		currentLevelNodes--;
+		state_map_add(historyMap, goal, history);
 	}
 
-	// Si no se encontró un objetivo
-	cout << "No hay objetivo" << endl;
-	cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-	cout << "ms" << endl
-						<< endl;
-	return nullopt;
-}
+	depth = open.CurrentPriority();
 
-// Función para realizar la búsqueda en anchura con poda
-optional<state_t> bfsPrunning(state_t root)
-{
-	system_clock::time_point startTime = high_resolution_clock::now();
-	queue<state_t> nodeQueue;
-	unordered_map<state_t, COLOR> nodeColors;
-	ruleid_iterator_t iter;
-
-	// Se marca el nodo raíz como blanco y se agrega a la cola
-	nodeColors[root] = COLOR::WHITE;
-	nodeQueue.emplace(root);
-
-	// Se limpiam los nodos de nivel
-	levelNodes.clear();
-	currentLevelNodes = 1;
-	nextLevelNodes = 1;
-
-	// Mientras la cola no esté vacía
-	while (!nodeQueue.empty())
+	while (!open.Empty())
 	{
-		// Obtenemos el siguiente nodo de la cola
-		state_t currentNode = nodeQueue.front();
-		nodeQueue.pop();
-		init_fwd_iter(&iter, &currentNode);
 
-		// Si se han visitado todos los nodos del nivel actual
-		if (currentLevelNodes == 0)
+		if (depth == open.CurrentPriority())
 		{
-			// Se actualizan los nodos de nivel
-			levelNodes.push_back(nextLevelNodes);
-			currentLevelNodes = nextLevelNodes;
-			nextLevelNodes = 0;
-
-			// Se imprime la profundidad y el número de nodos
-			cout << "Profundidad: " << levelNodes.size() << endl;
-			cout << "Tiene " << currentLevelNodes << " nodo(s)." << endl;
+			nodesPerDepth[depth] = nodesPerDepth[depth] + 1;
+		}
+		else if (depth == 0)
+		{
+			printf("\n%d\t%d\t", depth, nodesPerDepth[depth]);
+			depth = open.CurrentPriority();
+			nodesPerDepth[depth] = 1;
+		}
+		else
+		{
+			b_factor = (float)nodesPerDepth[depth] / (float)nodesPerDepth[depth - 1];
+			printf("%f\n%d\t%d\t", b_factor, depth, nodesPerDepth[depth]);
+			depth = open.CurrentPriority();
+			nodesPerDepth[depth] = 1;
 		}
 
-		// Si el nodo actual es un objetivo
-		if (is_goal(&currentNode))
+		/* get state */
+		state = open.Top();
+		open.Pop();
+
+		if (pruning)
 		{
-			// Se imprime la profundidad, el número de nodos y el tiempo de ejecución
-			cout << "Profundidad: " << levelNodes.size() << endl;
-			cout << "Tiene " << levelNodes.back() << " nodo(s)." << endl;
-			cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-			cout << "ms" << endl
-								<< endl;
-			// Se devuelve el nodo objetivo
-			return optional<state_t>(currentNode);
+			new_history = state_map_get(historyMap, &state);
+			history = *new_history;
 		}
 
-		// Si se ha excedido el tiempo máximo de ejecución
-		int64_t elapsedTime;
-		if ((elapsedTime = checkMaxRuntime(startTime)) != -1)
+		init_bwd_iter(&iter, &state);
+		while ((ruleid = next_ruleid(&iter)) >= 0)
 		{
-			// Se imprime el tiempo de ejecución y se sale del bucle
-			cout << "Tiempo de corrida " << elapsedTime << "ms" << endl;
-			break;
-		}
 
-		// Para cada acción posible
-		int action;
-		while ((action = next_ruleid(&iter)) >= 0)
-		{
-			// Aplicamos la acción al nodo actual para obtener un nuevo nodo
-			state_t newNode;
-			apply_fwd_rule(action, &currentNode, &newNode);
-
-			// Si el nuevo nodo ya ha sido descubierto
-			if (nodeColors.contains(newNode))
+			if (pruning)
 			{
-				// Si el nuevo nodo es blanco
-				if (nodeColors[newNode] == COLOR::WHITE)
-				{
-					// Marcamos el nuevo nodo como gris y lo agregamos a la cola
-					nodeColors[newNode] = COLOR::GRAY;
-					nodeQueue.emplace(newNode);
-					nextLevelNodes += 1;
-				}
+
+				if (!bwd_rule_valid_for_history(history, ruleid))
+					continue;
+
+				apply_bwd_rule(ruleid, &state, &child);
+
+				c_history = next_bwd_history(history, ruleid);
+				state_map_add(historyMap, &child, c_history);
 			}
-			// Si el nuevo nodo no ha sido descubierto
 			else
 			{
-				// Marcamos el nuevo nodo como gris y lo agregamos a la cola
-				nodeColors[newNode] = COLOR::GRAY;
-				nodeQueue.emplace(newNode);
-				nextLevelNodes += 1;
+				apply_bwd_rule(ruleid, &state, &child);
 			}
+
+			int child_g = depth + get_bwd_rule_cost(ruleid);
+
+			open.Add(child_g, child_g, child);
 		}
-
-		// Se decrementa el número de nodos del nivel actual
-		currentLevelNodes--;
-
-		// Se marca el nodo actual como negro
-		nodeColors[currentNode] = COLOR::BLACK;
 	}
 
-	// Si no se encontró un objetivo
-	cout << "No hay objetivo" << endl;
-	cout << "Tiempo de corrida " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-	cout << "ms" << endl
-						<< endl;
-	return {};
+	return -1;
 }
 
 // Función principal
-int main(int argc, char **argv)
+int main()
 {
-    state_t goal;
-    int finished, goal_id, pruning;
+	state_t goal;
+	int finished, goal_id, pruning;
+	std::string input;
 
-    if (argc != 2) {
-        printf("Please enter 1 for parcial pruning or 0 for no pruning.\n\n");
-        return -1;
-    }
+	std::cout << "Please enter 1 for parcial pruning or 0 for no pruning.\n\n";
+	std::getline(std::cin, input);
 
-    pruning = atoi(argv[1]);
+	std::stringstream(input) >> pruning;
 
-    if (pruning != 0 && pruning != 1) {
-        printf("Please enter 1 for parcial pruning or 0 for no pruning.\n\n");
-        return -1;
-    }
+	if (pruning != 0 && pruning != 1)
+	{
+		std::cout << "Please enter 1 for parcial pruning or 0 for no pruning.\n\n";
+		return -1;
+	}
 
-    printf("Depth\t#Nodes\tBranching Factor\n");
-    printf("------------------------------------------------------------------\n");
+	std::cout << "Depth\t#Nodes\tBranching Factor\n";
+	std::cout << "------------------------------------------------------------------\n";
 
-    first_goal_state(&goal, &goal_id);
-;
-    if (pruning) 
-		bfsPrunning(goal);
-	else 
-		bfs(goal);
+	first_goal_state(&goal, &goal_id);
 
-    return 0;
+	finished = bfs(&goal, pruning);
+
+	if (finished)
+	{
+		std::cout << "THE END (?";
+	}
+
+	return 0;
 }

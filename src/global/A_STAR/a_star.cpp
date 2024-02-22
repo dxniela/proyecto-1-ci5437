@@ -7,7 +7,6 @@
 #include <chrono>
 #include <iomanip>
 
-#define MAX_LINE_LENGTH 999
 #define MAX_RUN_TIME 600000
 
 using namespace std::chrono;
@@ -22,49 +21,23 @@ int64_t checkMaxRuntime(system_clock::time_point &startTime)
 	return currentTime > MAX_RUN_TIME ? currentTime : -1;
 }
 
-// Función para verificar si un estado es el estado objetivo
-bool is_goal_reached(state_t *state)
-{
-	return is_goal(state);
-}
-
-// Función para expandir un estado y agregar sus hijos a la cola de prioridad
-void expand_state(state_t *state, PriorityQueue<state_t> &q, state_map_t *distance, int g)
-{
-	state_t child;
-	int ruleid;
-	ruleid_iterator_t iter;
-
-	init_fwd_iter(&iter, state);
-	while ((ruleid = next_ruleid(&iter)) >= 0)
-	{
-		apply_fwd_rule(ruleid, state, &child);
-
-		int child_g = g + get_fwd_rule_cost(ruleid);
-		int child_h = heuristicas(child);
-		int child_f = child_g + child_h;
-
-		if (child_h < INT_MAX)
-		{
-			q.Add(child_f, child_g, child);
-		}
-	}
-}
-
 // Implementación del algoritmo A*
 int aStar(state_t *start)
 {
 	system_clock::time_point startTime = high_resolution_clock::now();
 	PriorityQueue<state_t> q;
 	state_map_t *distance = new_state_map();
+
 	if (distance == NULL)
 	{ // Verifica si la memoria fue asignada correctamente
-		cout << "Error: No se pudo asignar memoria para el mapa de estado.\n" << endl;
+		cout << "Error: No se pudo asignar memoria para el mapa de estado.\n"
+				 << endl;
 		return -1;
 	}
 
-	state_t state;
-	int g;
+	state_t state, child;
+	int g, ruleid;
+	ruleid_iterator_t iter;
 
 	/* Agrega el estado inicial */
 	state_map_add(distance, start, 0);
@@ -77,7 +50,8 @@ int aStar(state_t *start)
 		int64_t runTime = checkMaxRuntime(startTime);
 		if (runTime != -1)
 		{
-			cout << "Tiempo de corrida excedido: " << runTime << " ms\n" << endl;
+			cout << "Tiempo de corrida excedido: " << runTime << " ms\n"
+					 << endl;
 			break;
 		}
 
@@ -95,15 +69,26 @@ int aStar(state_t *start)
 		{
 			state_map_add(distance, &state, g);
 
-			if (is_goal_reached(&state))
+			if (is_goal(&state))
 			{
-				cout << "A* ha expandido: " << nodes_expanded << " nodos." << endl;
-				cout << "Movimientos mínimos realizados: " << g << endl;
-				cout << "Tiempo de corrida: " << duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count() << " ms\n\n" << endl;
 				return g;
 			}
+			init_fwd_iter(&iter, &state);
+			while ((ruleid = next_ruleid(&iter)) >= 0)
+			{
+				apply_fwd_rule(ruleid, &state, &child);
 
-			expand_state(&state, q, distance, g);
+				int child_g = g + get_fwd_rule_cost(ruleid);
+
+				int child_h = heuristicas(child);
+
+				int child_f = child_g + child_h;
+
+				if (child_h < INT_MAX)
+				{
+					q.Add(child_f, child_g, child);
+				}
+			}
 		}
 	}
 
@@ -136,7 +121,7 @@ void process_test_file(string filename)
 
 	while (getline(file, line))
 	{
-		
+
 		nchars = read_state(line.c_str(), &start);
 		if (nchars <= 0)
 		{
