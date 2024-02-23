@@ -1,4 +1,4 @@
-# This file was created by genTopSpinBasic.cpp with the following command line parameters:
+# This file was created by genTopSpinCompact.cpp with the following command line parameters:
 #  12  4
 
 # number of state variables = the number of tokens
@@ -15,20 +15,9 @@ X1 X2 X3 X4 -  -  -  -  -  -  -  -  => X4 X3 X2 X1 -  -  -  -  -  -  -  -  LABEL
 -  -  -  -  -  X1 X2 X3 X4 -  -  -  => -  -  -  -  -  X4 X3 X2 X1 -  -  -  LABEL RevAt5
 -  -  -  -  -  -  X1 X2 X3 X4 -  -  => -  -  -  -  -  -  X4 X3 X2 X1 -  -  LABEL RevAt6
 -  -  -  -  -  -  -  X1 X2 X3 X4 -  => -  -  -  -  -  -  -  X4 X3 X2 X1 -  LABEL RevAt7
--  -  -  -  -  -  -  -  X1 X2 X3 X4 => -  -  -  -  -  -  -  -  X4 X3 X2 X1 LABEL RevAt8
-X4 -  -  -  -  -  -  -  -  X1 X2 X3 => X1 -  -  -  -  -  -  -  -  X4 X3 X2 LABEL RevAt9
-X3 X4 -  -  -  -  -  -  -  -  X1 X2 => X2 X1 -  -  -  -  -  -  -  -  X4 X3 LABEL RevAt10
-X2 X3 X4 -  -  -  -  -  -  -  -  X1 => X3 X2 X1 -  -  -  -  -  -  -  -  X4 LABEL RevAt11
+T1 T2 T3 T4 T5 T6 T7 T8 X1 X2 X3 X4 => X3 X2 X1 T1 T2 T3 T4 T5 T6 T7 T8 X4 LABEL RevAt8
+X4 T1 T2 T3 T4 T5 T6 T7 T8 X1 X2 X3 => X2 X1 T1 T2 T3 T4 T5 T6 T7 T8 X4 X3 LABEL RevAt9
+X3 X4 T1 T2 T3 T4 T5 T6 T7 T8 X1 X2 => X1 T1 T2 T3 T4 T5 T6 T7 T8 X4 X3 X2 LABEL RevAt10
+X2 X3 X4 T1 T2 T3 T4 T5 T6 T7 T8 X1 => T1 T2 T3 T4 T5 T6 T7 T8 X4 X3 X2 X1 LABEL RevAt11
 
 GOAL 0 1 2 3 4 5 6 7 8 9 10 11 
-GOAL 1 2 3 4 5 6 7 8 9 10 11 0 
-GOAL 2 3 4 5 6 7 8 9 10 11 0 1 
-GOAL 3 4 5 6 7 8 9 10 11 0 1 2 
-GOAL 4 5 6 7 8 9 10 11 0 1 2 3 
-GOAL 5 6 7 8 9 10 11 0 1 2 3 4 
-GOAL 6 7 8 9 10 11 0 1 2 3 4 5 
-GOAL 7 8 9 10 11 0 1 2 3 4 5 6 
-GOAL 8 9 10 11 0 1 2 3 4 5 6 7 
-GOAL 9 10 11 0 1 2 3 4 5 6 7 8 
-GOAL 10 11 0 1 2 3 4 5 6 7 8 9 
-GOAL 11 0 1 2 3 4 5 6 7 8 9 10 

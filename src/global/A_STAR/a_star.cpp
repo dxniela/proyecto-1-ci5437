@@ -1,5 +1,5 @@
-#include <vector>
 #include "../priority_queue.hpp"
+#include <string>
 #include <stdbool.h>
 #include <fstream>
 #include <string>
@@ -7,163 +7,118 @@
 #include <chrono>
 #include <iomanip>
 
-#define MAX_RUN_TIME 600000
-
-using namespace std::chrono;
 using namespace std;
 
-int64_t nodes_expanded;
+#define MAX_LINE_LENGTH 999
 
-// Función para verificar si se ha excedido el tiempo máximo de ejecución
-int64_t checkMaxRuntime(system_clock::time_point &startTime)
-{
-	int64_t currentTime = duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-	return currentTime > MAX_RUN_TIME ? currentTime : -1;
+unsigned long int nodes_expanded;
+
+int a_star(state_t *init_state, int (*h)(state_t*)) {
+    state_t state, child;
+    int ruleid, g, *old_g;
+    ruleid_iterator_t iter;
+    state_map_t *distances;
+    PriorityQueue<state_t> frontier;
+
+    // Distance map
+    distances = new_state_map();
+    state_map_add(distances, init_state, 0);
+
+    // Min-priority queue on the f-value (g + h)
+    frontier.Add(h(init_state), 0, *init_state);
+
+    while (!frontier.Empty()) {
+        nodes_expanded++;
+        g = frontier.CurrentPriority();
+
+        // Get the state with the lowest f-value
+        state = frontier.Top();
+        frontier.Pop();
+        nodes_expanded++;
+
+        // Current distance 
+        g -= h(&state);
+
+        // If the state is a goal state
+        if (is_goal(&state)) return g;
+
+        // Get the distance to the state
+        old_g = state_map_get(distances, &state);
+
+        // If the state was not visited or if the new distance is lower
+        if (old_g == NULL || g <= *old_g) {
+            // Update the distance
+            state_map_add(distances, &state, g);
+
+            // Expand the state
+            init_fwd_iter(&iter, &state);
+            while ((ruleid = next_ruleid(&iter)) >= 0) {
+                apply_fwd_rule(ruleid, &state, &child);
+
+                // Compute the distance to the child state
+                int h_child = h(&child); 
+                if (h_child < INT_MAX) {
+                    // Add the state to the queue with the new distance
+                    int g_child = g + get_fwd_rule_cost(ruleid);
+                    int f_child = g_child + h_child;
+                    frontier.Add(f_child, g_child, child);
+                }
+            }
+        }
+    }
+
+    // No goal state found
+    return -1;
 }
 
-// Implementación del algoritmo A*
-int aStar(state_t *start)
-{
-	system_clock::time_point startTime = high_resolution_clock::now();
-	PriorityQueue<state_t> q;
-	state_map_t *distance = new_state_map();
-
-	if (distance == NULL)
-	{ // Verifica si la memoria fue asignada correctamente
-		cout << "Error: No se pudo asignar memoria para el mapa de estado.\n"
-				 << endl;
-		return -1;
-	}
-
-	state_t state, child;
-	int g, ruleid;
-	ruleid_iterator_t iter;
-
-	/* Agrega el estado inicial */
-	state_map_add(distance, start, 0);
-	q.Add(0, 0, *start);
-
-	while (!q.Empty())
-	{
-
-		/* Verifica si se ha excedido el tiempo máximo de ejecución */
-		int64_t runTime = checkMaxRuntime(startTime);
-		if (runTime != -1)
-		{
-			cout << "Tiempo de corrida excedido: " << runTime << " ms\n"
-					 << endl;
-			break;
-		}
-
-		/* Obtiene la distancia actual desde el inicio */
-		g = q.CurrentPriority();
-
-		/* Obtiene el estado */
-		state = q.Top();
-		q.Pop();
-
-		int *old_distance = state_map_get(distance, &state);
-		++nodes_expanded;
-
-		if ((old_distance == NULL) || (g < *old_distance) || (!compare_states(&state, start)))
-		{
-			state_map_add(distance, &state, g);
-
-			if (is_goal(&state))
-			{
-				return g;
-			}
-			init_fwd_iter(&iter, &state);
-			while ((ruleid = next_ruleid(&iter)) >= 0)
-			{
-				apply_fwd_rule(ruleid, &state, &child);
-
-				int child_g = g + get_fwd_rule_cost(ruleid);
-
-				int child_h = heuristicas(child);
-
-				int child_f = child_g + child_h;
-
-				if (child_h < INT_MAX)
-				{
-					q.Add(child_f, child_g, child);
-				}
-			}
-		}
-	}
-
-	return -1;
-}
-
-// Función para procesar el archivo de prueba
-void process_test_file(string filename)
-{
-	string line;
-	int d;
-	ssize_t nchars;
-	state_t start;
+int main(int argc, char **argv) {
+    printf("A*\n");
+    char str[MAX_LINE_LENGTH + 1];
+    ssize_t n; 
+    state_t state; 
+    clock_t start, end;
+    float time;
 	ifstream file;
-	clock_t startTime, endTime, timeSpan;
-	float runTime;
+    string filename;
+    string line;
 
-	cargarPDBS();
+	cout << "Por favor, ingrese un archivo de prueba seguido de ENTER: ";
+	getline(cin, filename);
+
+    cargarPDBS();
 
 	file.open(filename);
 
 	if (!file.is_open())
 	{
 		cout << "Error: Nombre de archivo inválido: " << filename << endl;
-		return;
+		return 0;
 	}
 
 	cout << "Instancia \t\t\t Resuelto   Tiempo \t   Nodos Expandidos   Distancia\t" << endl;
 	cout << "-----------------------------------------------------------------------------" << endl;
 
-	while (getline(file, line))
-	{
+    while (getline(file, line)) {
 
-		nchars = read_state(line.c_str(), &start);
-		if (nchars <= 0)
-		{
-			cout << "Error: estado inválido ingresado." << endl;
-			continue;
-		}
+        n = read_state(line.c_str(), &state);
 
-		startTime = clock();
-		nodes_expanded = 0;
+        if (n <= 0) {
+            printf("Error: invalid state.\n");
+            continue; 
+        }
 
-		// INICIO DE A*
-		d = aStar(&start);
-		// FIN DE A*
+        nodes_expanded = 0;
+        start = clock();
+        int d = a_star(&state, heuristicas);
+        end = clock();
 
-		endTime = clock();
+        time = (float)(end - start) / CLOCKS_PER_SEC;
 
-		timeSpan = endTime - startTime;
+        if (d >= 0) 
+            cout << line << "\t Verdadero \t " << time << " ms \t " << nodes_expanded << "\t\t " << d << endl;
+        else 
+            cout << line << "\t Falso \t " << time << " ms \t " << nodes_expanded << "\t\t " << d << endl;
+    }
 
-		runTime = timeSpan / (double)CLOCKS_PER_SEC;
-
-		if (d < 0)
-		{
-			cout << line << "\t Falso \t " << runTime << " ms \t " << nodes_expanded << "\t\t " << d << endl;
-		}
-		else
-		{
-			cout << line << "\t Verdadero \t " << runTime << " ms \t " << nodes_expanded << "\t\t " << d << endl;
-		}
-	}
-
-	file.close();
-}
-
-// Función principal
-int main(int argc, char **argv)
-{
-	string filename;
-
-	cout << "Por favor, ingrese un archivo de prueba seguido de ENTER: ";
-	getline(cin, filename);
-
-	process_test_file(filename);
-
-	return 0;
+    return 0;
 }

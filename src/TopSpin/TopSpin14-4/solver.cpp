@@ -14,7 +14,7 @@ state_t abs_state3;
 
 using namespace std;
 
-void cargarPDB(){
+void cargarPDBS(){
 
 	FILE *f1 = fopen("TopSpin14-4_abst1.pdb", "r");
 	FILE *f2 = fopen("TopSpin14-4_abst2.pdb", "r");
@@ -40,7 +40,7 @@ unsigned heuristicas(state_t puzzle_state){
 	abstract_state(abs2, &puzzle_state, &abs_state2);
 	abstract_state(abs3, &puzzle_state, &abs_state3);
 
-	unsigned max = max(*state_map_get(map1, &abs_state1), max(*state_map_get(map2, &abs_state2), *state_map_get(map3, &abs_state3)));
+	unsigned maximo = max(*state_map_get(map1, &abs_state1), max(*state_map_get(map2, &abs_state2), *state_map_get(map3, &abs_state3)));
 
-	return (max);
+	return (maximo);
 }

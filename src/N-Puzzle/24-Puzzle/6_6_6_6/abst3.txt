@@ -1,31 +1,25 @@
-map tile 0 0
-map tile 1 0
-map tile 2 0
-map tile 3 0
-map tile 4 0
-map tile 5 0
-map tile 6 0
-map tile 7 0
-map tile 8 0
-map tile 9 0
-map tile 10 0
-map tile 11 0
-map tile 12 0
-map tile 13 13
-map tile 14 14
-map tile 15 0
-map tile 16 0
-map tile 17 0
-map tile 18 18
-map tile 19 19
-map tile 20 0
-map tile 21 0
-map tile 22 0
-map tile 23 23
-map tile 24 24
-
-# XX XX XX XX XX 
-# XX XX XX XX XX
-# XX XX XX 13 14
-# XX XX XX 18 19
-# XX XX XX 23 24
+map 25 0 0 
+map 25 1 0
+map 25 2 0
+map 25 3 0
+map 25 4 0
+map 25 5 0
+map 25 6 0  
+map 25 7 0
+map 25 8 0
+map 25 9 0
+map 25 10 0
+map 25 11 0
+map 25 12 0
+map 25 13 13
+map 25 14 14
+map 25 15 15
+map 25 16 16
+map 25 17 17
+map 25 18 18
+map 25 19 0
+map 25 20 0
+map 25 21 0
+map 25 22 0
+map 25 23 0
+map 25 24 0

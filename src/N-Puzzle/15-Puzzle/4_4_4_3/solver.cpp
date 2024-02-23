@@ -40,13 +40,13 @@ void cargarPDBS(){
 	fclose(f4);
 }
 
-unsigned heuristicas(state_t puzzle_state){
-	abstract_state(abs1, &puzzle_state, &abs_state1);
-	abstract_state(abs2, &puzzle_state, &abs_state2);
-	abstract_state(abs3, &puzzle_state, &abs_state3);
-	abstract_state(abs4, &puzzle_state, &abs_state4);
+int heuristicas(state_t *puzzle_state){
+	abstract_state(abs1, puzzle_state, &abs_state1);
+	abstract_state(abs2, puzzle_state, &abs_state2);
+	abstract_state(abs3, puzzle_state, &abs_state3);
+	abstract_state(abs4, puzzle_state, &abs_state4);
 
-	unsigned sum = *state_map_get(map1, &abs_state1) + *state_map_get(map2, &abs_state2) + *state_map_get(map3, &abs_state3) + *state_map_get(map4, &abs_state4);
+	int sum = *state_map_get(map1, &abs_state1) + *state_map_get(map2, &abs_state2) + *state_map_get(map3, &abs_state3) + *state_map_get(map4, &abs_state4);
 
 	return (sum);
 }
