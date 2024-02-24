@@ -15,64 +15,53 @@ unsigned long int nodes_expanded;
 
 int a_star(state_t *init_state, int (*h)(state_t*)) {
     state_t state, child;
-    int ruleid, g, *old_g;
+    int ruleid, g, *old;
     ruleid_iterator_t iter;
     state_map_t *distances;
-    PriorityQueue<state_t> frontier;
+    PriorityQueue<state_t> q;
 
-    // Distance map
     distances = new_state_map();
     state_map_add(distances, init_state, 0);
 
-    // Min-priority queue on the f-value (g + h)
-    frontier.Add(h(init_state), 0, *init_state);
+    q.Add(h(init_state), 0, *init_state);
 
-    while (!frontier.Empty()) {
+    while (!q.Empty()) {
         nodes_expanded++;
-        g = frontier.CurrentPriority();
+        g = q.CurrentPriority();
 
-        // Get the state with the lowest f-value
-        state = frontier.Top();
-        frontier.Pop();
+        state = q.Top();
+        q.Pop();
         nodes_expanded++;
 
-        // Current distance 
         g -= h(&state);
 
-        // If the state is a goal state
-        if (is_goal(&state)) return g;
+        if (is_goal(&state)) 
+            return g;
 
-        // Get the distance to the state
-        old_g = state_map_get(distances, &state);
+        old = state_map_get(distances, &state);
 
-        // If the state was not visited or if the new distance is lower
-        if (old_g == NULL || g <= *old_g) {
-            // Update the distance
+        if (old == NULL || g <= *old) {
             state_map_add(distances, &state, g);
 
-            // Expand the state
             init_fwd_iter(&iter, &state);
             while ((ruleid = next_ruleid(&iter)) >= 0) {
                 apply_fwd_rule(ruleid, &state, &child);
 
-                // Compute the distance to the child state
                 int h_child = h(&child); 
                 if (h_child < INT_MAX) {
-                    // Add the state to the queue with the new distance
                     int g_child = g + get_fwd_rule_cost(ruleid);
                     int f_child = g_child + h_child;
-                    frontier.Add(f_child, g_child, child);
+                    q.Add(f_child, g_child, child);
                 }
             }
         }
     }
 
-    // No goal state found
     return -1;
 }
 
 int main(int argc, char **argv) {
-    printf("A*\n");
+
     char str[MAX_LINE_LENGTH + 1];
     ssize_t n; 
     state_t state; 

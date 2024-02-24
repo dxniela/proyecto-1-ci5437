@@ -59,10 +59,10 @@ abstractor:
 	rm -f $*.c
 
 %.idaStar: %.c ../../global/IDA/ida.cpp priority_queue.hpp node.hpp
-	$(CXX) $(OPT) ../../global/IDA/ida.cpp -include $< -include solver.cpp -o $@
+	$(CXX) $(OPT) ../../global/IDA/ida.cpp -include $< -include solverIDA.cpp -o $@
 
 %.aStar: %.c ../../global/A_STAR/a_star.cpp priority_queue.hpp
-	$(CXX) $(OPT) ../../global/A_STAR/a_star.cpp -include $< -include solver.cpp -o $@
+	$(CXX) $(OPT) ../../global/A_STAR/a_star.cpp -include $< -include solverAStar.cpp -o $@
 
 %.bfs: %.c ../../global/BFS/bfs.cpp stateComparer.hpp
 	$(CXX) $(OPT) -std=c++20 ../../global/BFS/bfs.cpp -include $< -o $@

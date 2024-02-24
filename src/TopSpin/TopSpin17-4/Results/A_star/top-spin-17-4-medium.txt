@@ -1,0 +1,4 @@
+Por favor, ingrese un archivo de prueba seguido de ENTER: Tests/top-spin-17-4-medium.txt
+Instancia                                        Resuelto   Tiempo      Nodos Expandidos   Distancia
+------------------------------------------------------------------------------------------------------
+0 7 3 4 1 2 13 8 9 14 11 10 5 12 6 15 16         Verdadero 34.5767 ms      37947798            14
